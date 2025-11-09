@@ -71,11 +71,26 @@ def update_song(db: Session, song_id: int, song_update: schemas.SongUpdate):
     """更新歌曲信息"""
     db_song = db.query(models.Song).filter(models.Song.id == song_id).first()
     if db_song:
+        old_file_path = db_song.file_path
+        old_cover_path = db_song.cover_path
+
         update_data = song_update.dict(exclude_unset=True)
         for field, value in update_data.items():
             setattr(db_song, field, value)
+
         db.commit()
         db.refresh(db_song)
+
+        # Check if file_path has changed and delete the old file
+        if "file_path" in update_data and old_file_path and old_file_path != db_song.file_path:
+            if os.path.exists(old_file_path):
+                os.remove(old_file_path)
+
+        # Check if cover_path has changed and delete the old cover
+        if "cover_path" in update_data and old_cover_path and old_cover_path != db_song.cover_path:
+            if os.path.exists(old_cover_path):
+                os.remove(old_cover_path)
+
     return db_song
 
 
@@ -83,12 +98,18 @@ def update_song_cover(db: Session, song_id: int, cover_url: str = None, cover_pa
     """更新歌曲封面"""
     db_song = db.query(models.Song).filter(models.Song.id == song_id).first()
     if db_song:
+        old_cover_path = db_song.cover_path
+
         if cover_url:
             db_song.cover_url = cover_url
         if cover_path:
             db_song.cover_path = cover_path
         db.commit()
         db.refresh(db_song)
+
+        if cover_path and old_cover_path and old_cover_path != cover_path:
+            if os.path.exists(old_cover_path):
+                os.remove(old_cover_path)
     return db_song
 
 

@@ -7,6 +7,7 @@ import os
 from database import create_tables
 from api import auth, songs, playlists
 from utils.file import ensure_directories
+from utils.sync import sync_database_with_static_files
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -29,6 +30,9 @@ ensure_directories()
 
 # 创建数据库表
 create_tables()
+
+# 同步数据库与文件
+sync_database_with_static_files()
 
 # 挂载静态文件
 if not os.path.exists("static"):
