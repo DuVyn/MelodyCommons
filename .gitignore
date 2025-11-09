@@ -23,3 +23,9 @@ __pycache__/
 # Python virtual environment
 env/
 venv/
+
+#音乐文件和封面图片
+*.flac
+*.mp3
+*.jpg
+*.png
