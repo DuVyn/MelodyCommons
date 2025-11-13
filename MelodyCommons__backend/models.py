@@ -24,6 +24,7 @@ class Song(Base):
     file_size = Column(BIGINT, nullable=True)
     cover_url = Column(String(500), nullable=True)
     cover_path = Column(String(500), nullable=True)
+    play_count = Column(Integer, default=0, nullable=False)
     created_at = Column(TIMESTAMP, default=func.current_timestamp())
     updated_at = Column(TIMESTAMP, default=func.current_timestamp(), onupdate=func.current_timestamp())
 

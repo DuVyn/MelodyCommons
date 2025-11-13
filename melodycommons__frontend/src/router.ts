@@ -25,6 +25,12 @@ const routes = [
         meta: {requiresAuth: true}
     },
     {
+        path: '/popular',
+        name: 'Popular',
+        component: () => import('@/views/PopularSongs.vue'),
+        meta: {requiresAuth: true}
+    },
+    {
         path: '/playlists',
         name: 'Playlists',
         component: () => import('@/views/Playlists.vue'),

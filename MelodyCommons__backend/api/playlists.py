@@ -10,7 +10,7 @@ from auth import get_current_user
 router = APIRouter(prefix="/playlists", tags=["playlists"])
 
 
-@router.get("/", response_model=List[schemas.Playlist])
+@router.get("", response_model=List[schemas.Playlist])
 def get_playlists(
         db: Session = Depends(get_db),
         current_user: schemas.User = Depends(get_current_user)

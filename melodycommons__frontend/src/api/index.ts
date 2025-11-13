@@ -7,10 +7,11 @@ export const API_BASE_URL = 'http://localhost:8000'
 // 创建axios实例
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 30000,
+    timeout: 60000,  // 增加到60秒
     headers: {
         'Content-Type': 'application/json'
-    }
+    },
+    withCredentials: true  // 添加凭证支持
 })
 
 // 请求拦截器
@@ -33,6 +34,8 @@ apiClient.interceptors.response.use(
         return response.data
     },
     (error) => {
+        console.error('API Error:', error)  // 添加错误日志
+
         if (error.response) {
             const {status, data} = error.response
 
@@ -69,8 +72,12 @@ apiClient.interceptors.response.use(
                     ElMessage.error(data.detail || data.message || '请求失败')
             }
         } else if (error.request) {
-            ElMessage.error('网络连接失败')
+            // 请求已发送但没有收到响应
+            console.error('Network Error:', error.message)
+            ElMessage.error('网络连接失败，请检查后端服务是否启动')
         } else {
+            // 请求配置出错
+            console.error('Request Error:', error.message)
             ElMessage.error('请求配置错误')
         }
 

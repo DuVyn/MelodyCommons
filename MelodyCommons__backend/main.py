@@ -13,16 +13,23 @@ from utils.sync import sync_database_with_static_files
 app = FastAPI(
     title="MelodyCommons API",
     description="共享音乐库系统API",
-    version="1.0.0"
+    version="1.0.0",
+    redirect_slashes=False  # 禁用自动斜杠重定向以避免 CORS 问题
 )
 
 # CORS配置 - 修复CORS问题
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # 明确指定前端地址
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174"
+    ],  # 明确指定前端地址
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # 确保目录存在
