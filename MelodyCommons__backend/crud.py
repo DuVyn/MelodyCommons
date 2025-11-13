@@ -4,6 +4,7 @@ import models
 import schemas
 from auth import hash_password
 import os
+import random
 from typing import Optional, List, Dict
 
 
@@ -65,6 +66,58 @@ def get_songs(db: Session, skip: int = 0, limit: int = 100, search: Optional[str
 def get_song(db: Session, song_id: int):
     """根据ID获取歌曲"""
     return db.query(models.Song).filter(models.Song.id == song_id).first()
+
+
+def increment_play_count(db: Session, song_id: int):
+    """增加歌曲播放次数"""
+    db_song = db.query(models.Song).filter(models.Song.id == song_id).first()
+    if db_song:
+        db_song.play_count += 1
+        db.commit()
+        db.refresh(db_song)
+    return db_song
+
+
+def get_popular_songs(db: Session, limit: int = 10):
+    """获取热门歌曲（按播放次数排序，播放次数相同时随机选择）"""
+    # 首先获取所有歌曲并按播放次数分组
+    all_songs = db.query(models.Song).order_by(desc(models.Song.play_count)).all()
+
+    if not all_songs:
+        return []
+
+    # 如果歌曲总数小于等于限制，直接返回所有歌曲并随机打乱顺序
+    if len(all_songs) <= limit:
+        random.shuffle(all_songs)
+        return all_songs
+
+    # 按播放次数分组
+    play_count_groups = {}
+    for song in all_songs:
+        count = song.play_count
+        if count not in play_count_groups:
+            play_count_groups[count] = []
+        play_count_groups[count].append(song)
+
+    # 从高到低遍历播放次数，随机选择歌曲直到达到limit
+    result = []
+    for count in sorted(play_count_groups.keys(), reverse=True):
+        songs_in_group = play_count_groups[count]
+        random.shuffle(songs_in_group)  # 随机打乱同播放次数的歌曲
+
+        if len(result) + len(songs_in_group) <= limit:
+            # 如果整组都可以加入，全部加入
+            result.extend(songs_in_group)
+        else:
+            # 否则只加入需要的数量
+            remaining = limit - len(result)
+            result.extend(songs_in_group[:remaining])
+            break
+
+        if len(result) >= limit:
+            break
+
+    return result
 
 
 def update_song(db: Session, song_id: int, song_update: schemas.SongUpdate):

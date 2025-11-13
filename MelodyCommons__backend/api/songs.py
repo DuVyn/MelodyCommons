@@ -17,7 +17,7 @@ from utils.cover import save_cover_image, get_cover_url, refresh_song_cover
 router = APIRouter(prefix="/songs", tags=["songs"])
 
 
-@router.get("/", response_model=List[schemas.Song])
+@router.get("", response_model=List[schemas.Song])
 def get_songs(
         page: int = Query(1, ge=1),
         limit: int = Query(50, ge=1, le=100),
@@ -28,6 +28,17 @@ def get_songs(
     """获取所有歌曲（支持分页和搜索）"""
     skip = (page - 1) * limit
     songs = crud.get_songs(db, skip=skip, limit=limit, search=search)
+    return songs
+
+
+@router.get("/popular/top", response_model=List[schemas.Song])
+def get_popular_songs(
+        limit: int = Query(10, ge=1, le=50),
+        db: Session = Depends(get_db),
+        current_user: schemas.User = Depends(get_current_user)
+):
+    """获取热门歌曲（按播放次数排序，播放次数相同时随机选择）"""
+    songs = crud.get_popular_songs(db, limit=limit)
     return songs
 
 
@@ -101,6 +112,13 @@ async def stream_song(
             detail="Song file not found"
         )
 
+    # 获取Range请求头
+    range_header = request.headers.get('range')
+
+    # 增加播放次数（仅在非Range请求时，避免拖动进度条时重复计数）
+    if not range_header:
+        crud.increment_play_count(db, song_id=song_id)
+
     # 获取文件信息
     file_size = os.path.getsize(song.file_path)
     file_ext = os.path.splitext(song.file_path)[1].lower()
@@ -114,7 +132,6 @@ async def stream_song(
     media_type = media_type_map.get(file_ext, 'audio/mpeg')
 
     # 处理Range请求（支持音频播放器的跳转功能）
-    range_header = request.headers.get('range')
 
     if range_header:
         # 解析Range头

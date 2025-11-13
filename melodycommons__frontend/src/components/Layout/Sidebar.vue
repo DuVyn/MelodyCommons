@@ -7,11 +7,11 @@
         </div>
         <ul class="nav-list">
           <li class="nav-item">
-            <router-link to="/songs" class="nav-link">
+            <router-link to="/popular" class="nav-link">
               <el-icon>
-                <Headset/>
+                <TrendCharts/>
               </el-icon>
-              <span>所有歌曲</span>
+              <span>🔥 热门歌曲</span>
             </router-link>
           </li>
         </ul>
@@ -83,7 +83,7 @@
 import {ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage, ElMessageBox} from 'element-plus'
-import {Headset, Menu, Plus, Delete} from '@element-plus/icons-vue'
+import {Headset, Menu, Plus, Delete, Promotion} from '@element-plus/icons-vue'
 import {usePlaylistsStore} from '@/stores/playlists'
 import type {Playlist} from '@/types'
 

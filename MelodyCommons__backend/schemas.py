@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List, Dict
 from datetime import datetime
 
@@ -45,8 +45,15 @@ class Song(BaseModel):
     file_size: Optional[int]
     cover_url: Optional[str]
     cover_path: Optional[str]
+    play_count: int
     created_at: datetime
     updated_at: datetime
+
+    @field_validator('play_count', mode='before')
+    @classmethod
+    def validate_play_count(cls, v):
+        """确保 play_count 不为 None，默认返回 0"""
+        return v if v is not None else 0
 
     class Config:
         from_attributes = True

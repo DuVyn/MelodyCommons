@@ -23,6 +23,7 @@ export interface Song {
     file_size: number | null
     cover_url: string | null
     cover_path: string | null
+    play_count: number
     created_at: string
     updated_at: string
 }
