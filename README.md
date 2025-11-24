@@ -1,6 +1,6 @@
 # MelodyCommons - 共享音乐库系统
 
-一个基于 FastAPI + Vue 3 的音乐共享平台。
+一个基于 FastAPI + Vue 3 的本地音乐播放器 Web 版。
 
 ## 项目结构
 
